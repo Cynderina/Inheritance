@@ -8,11 +8,15 @@ namespace Inheritance
 {
     class Program
     {
+        //Pilko toimintoja metodeihin enemmän switcheistä. Luettavuus paranee
+        // Poista turhat muuttujat
+        // Harkitse eri usereiden lisäämistä eri käyttöoikeuksilla
         static void PrintMenu()
         {
             Console.WriteLine("\n\nChoose from the following:\n\n");
             Console.WriteLine("[s] Search for documents\n");
             Console.WriteLine("[n] Add new document\n");
+            Console.WriteLine("[i] Inspect invoice\n");
             Console.WriteLine("[r] Remove document\n");
             Console.WriteLine("[m] Menu\n");
             Console.WriteLine("[q] Quit\n\n");
@@ -32,8 +36,8 @@ namespace Inheritance
             orders.Add(new Order("Maija", "124", "Kesko", 13));
             orders.Add(new Order("Matti", "125", "Kesko", 13));
 
-           
-            
+
+
 
             //List for invoices and hardcoded invoices
             List<Invoice> invoices = new List<Invoice>();
@@ -47,7 +51,7 @@ namespace Inheritance
 
             //HARDCODED DATA ENDS HERE AND PROGRAM WITH MENU ETC STARTS!!!!!
             PrintMenu();
-            Boolean continuous=true;
+            Boolean continuous = true;
 
             while (continuous)
             {
@@ -57,10 +61,10 @@ namespace Inheritance
                 switch (command)
                 {
                     case 's': //Searching for the documents
-                    Console.WriteLine("Order or Invoice?");
-                    orderOrInvoice = Console.ReadLine();
-                    
-                        if(orderOrInvoice=="Order")
+                        Console.WriteLine("Order or Invoice?");
+                        orderOrInvoice = Console.ReadLine();
+
+                        if (orderOrInvoice == "Order")
                         {
                             Console.WriteLine("Give ordernumber");
                             orderNumber = Console.ReadLine();
@@ -69,13 +73,13 @@ namespace Inheritance
 
                             foreach (Order item in orders)
                             {
-                                if(orderNumber == item.GetOrderNumber() && supplier == item.GetSupplier())
+                                if (orderNumber == item.GetOrderNumber() && supplier == item.GetSupplier())
                                 {
                                     Console.WriteLine($"Orderer is {item.GetPurchaser()} and total is {item.GetTotal()}");
                                 }
                             }
                         }
-                        else if(orderOrInvoice=="Invoice")
+                        else if (orderOrInvoice == "Invoice")
                         {
                             Console.WriteLine("Give ordernumber");
                             orderNumber = Console.ReadLine();
@@ -84,11 +88,11 @@ namespace Inheritance
 
                             foreach (Invoice item in invoices)
                             {
-                                if(orderNumber == item.GetOrderNumber() && supplier == item.GetSupplier())
+                                if (orderNumber == item.GetOrderNumber() && supplier == item.GetSupplier())
                                 {
                                     Console.WriteLine("Inspector is " + item.GetInspector());
                                     Console.WriteLine("Total is " + item.GetTotal());
-                                    if(item.GetInspectedStatus())
+                                    if (item.GetInspectedStatus())
                                     {
                                         Console.WriteLine("Inspection status is accepted");
                                     }
@@ -97,7 +101,7 @@ namespace Inheritance
                                         Console.WriteLine("Inspection status is unaccepted or rejected");
                                     }
                                     Console.WriteLine($"Payer is {item.GetPayer()}");
-                                    
+
                                 }
                             }
                         }
@@ -108,50 +112,100 @@ namespace Inheritance
                         break;
 
                     case 'n'://Add new document
-                        Console.WriteLine("Order or Invoice?");
-                        orderOrInvoice = Console.ReadLine();
+                        try
+                        {
+                            Console.WriteLine("Order or Invoice?");
+                            orderOrInvoice = Console.ReadLine();
+                            while(orderOrInvoice!= "Order" && orderOrInvoice!= "Invoice")
+                            {
+                                Console.WriteLine("Input must be either Order or Invoice. Try again.");
+                                orderOrInvoice = Console.ReadLine();
+                            }
+                            Console.WriteLine("Give ordernumber");
+                            orderNumber = Console.ReadLine();
+                            Console.WriteLine("Give supplier");
+                            supplier = Console.ReadLine();
+                            Console.WriteLine("Give total");
+                            total = double.Parse(Console.ReadLine());
+
+                            if (orderOrInvoice == "Order")
+                            {
+                                Console.WriteLine("Give name of purchaser");
+                                purchaser = Console.ReadLine();
+
+                                orders.Add(new Order(purchaser, orderNumber, supplier, total));
+                                Console.WriteLine("Order was added");
+                            }
+                            else if (orderOrInvoice == "Invoice")
+                            {
+                                invoices.Add(new Invoice(orderNumber, supplier, total));
+
+                                foreach (var item in invoices)
+                                {
+                                    if(item.GetOrderNumber()==orderNumber && item.GetSupplier()==supplier)
+                                    {
+                                        item.SetInspector(orderNumber, supplier, orders);
+                                    }
+                                }
+                                
+                                Console.WriteLine("Invoice was added");
+                            }
+                            else
+                            {
+                                Console.WriteLine("Error in choices, it must be either Invoice or Order");
+                            }
+                        }
+                            
+                        
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine("Please check data you've inputted to total. It must be XX,xx");
+                        }
+                       
+                            break;
+
+                    case 'i'://Inspecting invoice. Needed data is string inspectionResult
                         Console.WriteLine("Give ordernumber");
                         orderNumber = Console.ReadLine();
                         Console.WriteLine("Give supplier");
                         supplier = Console.ReadLine();
-                        Console.WriteLine("Give total");
-                        total = double.Parse(Console.ReadLine());
+                        string inspection = "null";
+                        Console.WriteLine("Inspect the invoice and order. Do you Accept or Reject the invoice? Respond Accept or Reject");
+                        inspection = Console.ReadLine();
+                        while (inspection != "Accept" && inspection != "Reject" && inspection != "Null")
+                        {
+                            Console.WriteLine("Answer must be either Accept or Reject. If you don't want respond give Null");
+                            inspection = Console.ReadLine();
+                            
+                        }
 
-                        if(orderOrInvoice=="Order")
+                        foreach (var item in invoices)
                         {
-                            Console.WriteLine("Give name of purchaser");
-                            purchaser = Console.ReadLine();
+                            if (item.GetOrderNumber() == orderNumber && item.GetSupplier() == supplier)
+                            {
+                                item.SetInspectedStatus(inspection);
+                            }
+                        }
+                        
 
-                            orders.Add(new Order(purchaser, orderNumber, supplier, total));
-                            Console.WriteLine("Order was added");
-                        }
-                        else if(orderOrInvoice=="Invoice")
-                        {
-                            invoices.Add(new Invoice(orderNumber, supplier, total));
-                            invoices[invoices.Count - 1].SetInspector(orderNumber, supplier, orders);
-                            Console.WriteLine("Invoice was added");
-                        }
-                        else
-                        {
-                            Console.WriteLine("Error in choices, it must be either Invoice or Order");
-                        }
+                       
+                        break;
+
+                    case 'r': //Remove document
+                        break;
+
+                    case 'm': //Bring menu
+                        PrintMenu();
+                        break;
+
+                    case 'q': //Quit program
+                        continuous = false;
                         break;
                 }
             }
 
 
-            //Inspecting invoice. Needed data is string inspectionResult
-            string inspection = "null";
-            Console.WriteLine("Inspect the invoice and order. Do you Accept or Reject the invoice? Respond Accept or Reject");
-            inspection = Console.ReadLine();
-            while(inspection != "Accept" && inspection != "Reject" && inspection != "Null")
-            {
-                Console.WriteLine("Answer must be either Accept or Reject. If you don't want respond give Null");
-                inspection = Console.ReadLine();
-            }
-            invoices[0].SetInspectedStatus(inspection);
-
-            Console.ReadLine();
+           
         }
     }
 }
