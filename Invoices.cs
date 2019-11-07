@@ -10,7 +10,6 @@ namespace Inheritance
     {
         private string _inspector;
         private Boolean _inspected;
-        private string _payer;
         //To set inspector etc data comparing we need here also some variables for ordernumber and supplier
         private string _orderNumberSetting;
         private string _supplierSetting;
@@ -30,10 +29,7 @@ namespace Inheritance
             return _inspected;
         }
 
-        public string GetPayer()
-        {
-            return _payer;
-        }
+       
 
         //Program fetches automatically the information of purchaser from orderlist by comparing ordernumber and supplier
         public void SetInspector(string ordernumber, string supplier, List<Order> orders)
