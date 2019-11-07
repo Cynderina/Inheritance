@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Npgsql;
 
 namespace Inheritance
 {
@@ -10,19 +11,45 @@ namespace Inheritance
     {
         //Pilko toimintoja metodeihin enemmän switcheistä. Luettavuus paranee
         // Poista turhat muuttujat
-        // Harkitse eri usereiden lisäämistä eri käyttöoikeuksilla
-        static void PrintMenu()
+        
+        static void PrintMenu(string role, User oneUser, Purchaser onePurchaser, ARSpecialist oneARSpecialist, Admin oneAdmin)
         {
-            Console.WriteLine("\n\nChoose from the following:\n\n");
-            Console.WriteLine("[s] Search for documents\n");
-            Console.WriteLine("[n] Add new document\n");
-            Console.WriteLine("[i] Inspect invoice\n");
-            Console.WriteLine("[r] Remove document\n");
-            Console.WriteLine("[m] Menu\n");
-            Console.WriteLine("[q] Quit\n\n");
+            if (role == "Purchaser")
+            {
+                onePurchaser.GetPurchaserMenu();
+            }
+            else if (role == "ARSpecialist")
+            {
+                oneARSpecialist.GetARSPecialistMenu();
+            }
+            else if (role == "Admin")
+            {
+                oneAdmin.GetAdminMenu();
+            }
         }
+
+        
+
+        
         static void Main(string[] args)
         {
+            //Creating here objects of User parent class and all the child classes so the appropriate methods can be called via that one object
+            User oneUser = new User();
+            Purchaser onePurchaser = new Purchaser();
+            ARSpecialist oneARSpecialist = new ARSpecialist();
+            Admin oneAdmin = new Admin();
+
+            //Here the program starts asking for user information and fetching role
+            string name, role;
+            role = "Null";
+            Console.WriteLine("Give name");
+            name = Console.ReadLine();
+            Console.WriteLine(oneUser.WorkerRole(name));
+            role = oneUser.WorkerRole(name);
+
+            
+           //Here is all the hardcoded data for documents
+            
             string orderOrInvoice;
             string orderNumber;
             string supplier;
@@ -50,7 +77,11 @@ namespace Inheritance
 
 
             //HARDCODED DATA ENDS HERE AND PROGRAM WITH MENU ETC STARTS!!!!!
-            PrintMenu();
+
+            PrintMenu(role, oneUser, onePurchaser, oneARSpecialist, oneAdmin);
+            
+
+
             Boolean continuous = true;
 
             while (continuous)
@@ -63,7 +94,11 @@ namespace Inheritance
                     case 's': //Searching for the documents
                         Console.WriteLine("Order or Invoice?");
                         orderOrInvoice = Console.ReadLine();
-
+                        while (orderOrInvoice != "Order" && orderOrInvoice != "Invoice")
+                        {
+                            Console.WriteLine("Input must be either Order or Invoice. Try again.");
+                            orderOrInvoice = Console.ReadLine();
+                        }
                         if (orderOrInvoice == "Order")
                         {
                             Console.WriteLine("Give ordernumber");
@@ -100,7 +135,7 @@ namespace Inheritance
                                     {
                                         Console.WriteLine("Inspection status is unaccepted or rejected");
                                     }
-                                    Console.WriteLine($"Payer is {item.GetPayer()}");
+                                    
 
                                 }
                             }
@@ -116,7 +151,7 @@ namespace Inheritance
                         {
                             Console.WriteLine("Order or Invoice?");
                             orderOrInvoice = Console.ReadLine();
-                            while(orderOrInvoice!= "Order" && orderOrInvoice!= "Invoice")
+                            while (orderOrInvoice != "Order" && orderOrInvoice != "Invoice")
                             {
                                 Console.WriteLine("Input must be either Order or Invoice. Try again.");
                                 orderOrInvoice = Console.ReadLine();
@@ -142,12 +177,12 @@ namespace Inheritance
 
                                 foreach (var item in invoices)
                                 {
-                                    if(item.GetOrderNumber()==orderNumber && item.GetSupplier()==supplier)
+                                    if (item.GetOrderNumber() == orderNumber && item.GetSupplier() == supplier)
                                     {
                                         item.SetInspector(orderNumber, supplier, orders);
                                     }
                                 }
-                                
+
                                 Console.WriteLine("Invoice was added");
                             }
                             else
@@ -155,14 +190,14 @@ namespace Inheritance
                                 Console.WriteLine("Error in choices, it must be either Invoice or Order");
                             }
                         }
-                            
-                        
+
+
                         catch (Exception ex)
                         {
                             Console.WriteLine("Please check data you've inputted to total. It must be XX,xx");
                         }
-                       
-                            break;
+
+                        break;
 
                     case 'i'://Inspecting invoice. Needed data is string inspectionResult
                         Console.WriteLine("Give ordernumber");
@@ -176,7 +211,7 @@ namespace Inheritance
                         {
                             Console.WriteLine("Answer must be either Accept or Reject. If you don't want respond give Null");
                             inspection = Console.ReadLine();
-                            
+
                         }
 
                         foreach (var item in invoices)
@@ -186,16 +221,19 @@ namespace Inheritance
                                 item.SetInspectedStatus(inspection);
                             }
                         }
-                        
 
-                       
+
+
                         break;
 
-                    case 'r': //Remove document
+                    case 'a': //Add new user
+                        oneUser.CreateNewWorker();
                         break;
+
+
 
                     case 'm': //Bring menu
-                        PrintMenu();
+                        PrintMenu(role, oneUser, onePurchaser, oneARSpecialist, oneAdmin);
                         break;
 
                     case 'q': //Quit program
@@ -205,7 +243,7 @@ namespace Inheritance
             }
 
 
-           
+
         }
     }
 }
